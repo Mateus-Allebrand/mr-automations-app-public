@@ -59,6 +59,7 @@ class Argoquery():
             if venda.get("nsu") == nsu_alvo or venda.get("nsu").endswith(nsu_alvo) :
                 info_simplificada ={
                     "empresa":venda.get("idempresa"),
+                    "loja":venda.get("idempresa"),
                     "datavenda":venda.get("datavenda"),
                     "nsu":venda.get("nsu"),
                     "valorbruto":venda.get("valorbruto"),
