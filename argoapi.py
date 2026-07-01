@@ -8,14 +8,14 @@ from time import time, sleep
 import pytz
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
-
+import streamlit as st
 
 class Argoquery():
     def __init__(self,str_dtInicial,nsu):
-        self.urlauth = 'https://toda-one-auth.argoservicos.com/api/v1/auth'
-        self.login = os.getenv("ARGO_LOGIN")
-        self.password = os.getenv("ARGO_PASSWORD")
-        self.apirota = 'http://187.49.76.246:6068/argoapi/'
+        self.urlauth = st.secrets["api_argo"]["ARGO_URL_AUTH"]    
+        self.login = st.secrets["api_argo"]["ARGO_LOGIN"]
+        self.password = st.secrets["api_argo"]["ARGO_PASSWORD"]
+        self.apirota = st.secrets["api_argo"]["ARGO_URL_API"]
         self.vendas_cartoes = f'transacoescartoes?dataInicial={str_dtInicial}&datafinal={str_dtInicial}'
         self.nsu = str(nsu)
         self.session = self.configure_resilient_session()
@@ -59,17 +59,15 @@ class Argoquery():
             if venda.get("nsu") == nsu_alvo or venda.get("nsu").endswith(nsu_alvo) :
                 info_simplificada ={
                     "empresa":venda.get("idempresa"),
+                    "datavenda":venda.get("datavenda"),
                     "nsu":venda.get("nsu"),
-                    "valorbruto":venda.get("valorbruto")
+                    "valorbruto":venda.get("valorbruto"),
+                    
+                    # "horavenda":venda.get("horavenda")
                 }
                 dadosencontrados.append(info_simplificada)
 
         return dadosencontrados
-
-    # def show_nsu(): 
-    #     query = self.query_nsu
-    #     for i in :
-    #         print(i["nsu"])
 
 
 # query = Argoquery(24062026,200)
