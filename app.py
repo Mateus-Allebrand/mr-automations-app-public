@@ -50,7 +50,7 @@ def check_password():
 
 if check_password():
     # O conteúdo principal da sua aplicação entra aqui
-    st.success(f"Bem-vindo, {st.session_state['user_auth']}!")
+    st.success(f"Bem-vindo, {st.session_state['user_auth'].title()}!")
     
     # Exemplo de conteúdo protegido
     st.title("CONSULTAR APIS")
