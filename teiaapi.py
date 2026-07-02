@@ -20,7 +20,7 @@ class Teiaquery():
         self.username = st.secrets["api_teia"]["TEIA_USERNAME"]
         self.password = st.secrets["api_teia"]["TEIA_PASSWORD"]
         self.str_data = str_data
-        self.nsu = str(nsu)
+        self.nsu = str(nsu).strip()
 
     def credential_connection(self):
         rPost = requests.post(self.urlbase,
