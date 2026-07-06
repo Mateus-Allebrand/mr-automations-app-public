@@ -9,10 +9,10 @@ import requests
 
 
 # No topo do seu arquivo app.py
-st.set_page_config(page_title="MR - Nexus API", page_icon="C:\Projetos\mr-automations-app-public\images\\faviconmr.jpeg")
+st.set_page_config(page_title="MR - Nexus API", page_icon="images/faviconmr.jpeg")
 
 with st.sidebar:
-    st.image("C:\Projetos\mr-automations-app-public\images\logomr.jpeg", width=160)
+    st.image("images/logomr.jpeg", width=160)
     st.markdown("---") # Linha separadora
 
 # 2. Lógica de Validação de Acesso
