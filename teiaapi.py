@@ -19,7 +19,7 @@ class Teiaquery():
         self.grant_type = st.secrets["api_teia"]["TEIA_GRANT"]
         self.username = st.secrets["api_teia"]["TEIA_USERNAME"]
         self.password = st.secrets["api_teia"]["TEIA_PASSWORD"]
-        self.str_data = str_data
+        self.str_data = str_data.strip()
         self.nsu = str(nsu).strip()
 
     def credential_connection(self):

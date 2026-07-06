@@ -16,7 +16,7 @@ class Argoquery():
         self.login = st.secrets["api_argo"]["ARGO_LOGIN"]
         self.password = st.secrets["api_argo"]["ARGO_PASSWORD"]
         self.apirota = st.secrets["api_argo"]["ARGO_URL_API"]
-        self.vendas_cartoes = f'transacoescartoes?dataInicial={str_dtInicial}&datafinal={str_dtInicial}'
+        self.vendas_cartoes = f'transacoescartoes?dataInicial={str_dtInicial.strip()}&datafinal={str_dtInicial.strip()}'
         self.nsu = str(nsu).strip()
         self.session = self.configure_resilient_session()
 
