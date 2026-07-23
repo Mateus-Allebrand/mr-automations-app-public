@@ -11,13 +11,21 @@ from urllib3.util import Retry
 import streamlit as st
 
 class Argoquery():
-    def __init__(self,str_dtInicial,nsu):
+    def __init__(self,str_dtInicial,nsu=None, valor_bruto=None):
         self.urlauth = st.secrets["api_argo"]["ARGO_URL_AUTH"]    
         self.login = st.secrets["api_argo"]["ARGO_LOGIN"]
         self.password = st.secrets["api_argo"]["ARGO_PASSWORD"]
         self.apirota = st.secrets["api_argo"]["ARGO_URL_API"]
         self.vendas_cartoes = f'transacoescartoes?dataInicial={str_dtInicial.strip()}&datafinal={str_dtInicial.strip()}'
-        self.nsu = str(nsu).strip()
+        self.nsu = str(nsu).strip() if nsu is not None and str(nsu).strip() != "" else None
+
+        # Tratamento seguro para Valor (converte apenas se houver dado válido)
+        if valor_bruto is not None and str(valor_bruto).strip() != "":
+            # Substitui vírgula por ponto caso o usuário digite com formato brasileiro
+            valor_tratado = str(valor_bruto).strip().replace(",", ".")
+            self.valor = float(valor_tratado)
+        else:
+            self.valor = None
         self.session = self.configure_resilient_session()
 
     @staticmethod
@@ -53,10 +61,11 @@ class Argoquery():
 
     def query_nsu(self):
         nsu_alvo = self.nsu
+        valoralvo = self.valor
         vendas = self.api_connection()
         dadosencontrados = []
         for venda in vendas:
-            if venda.get("nsu") == nsu_alvo or venda.get("nsu").endswith(nsu_alvo) :
+            if venda.get("nsu") == nsu_alvo or venda.get("nsu").endswith(nsu_alvo):
                 info_simplificada ={
                     "empresa":venda.get("idempresa"),
                     "loja":venda.get("idempresa"),
@@ -67,10 +76,27 @@ class Argoquery():
                     # "horavenda":venda.get("horavenda")
                 }
                 dadosencontrados.append(info_simplificada)
-
+        
         return dadosencontrados
 
-
+    def query_valor(self):
+        valoralvo = self.valor
+        vendas = self.api_connection()
+        dadosencontrados = []
+        for venda in vendas:
+            if venda.get("valorbruto") == valoralvo :
+                info_simplificada ={
+                    "empresa":venda.get("idempresa"),
+                    "loja":venda.get("idempresa"),
+                    "datavenda":venda.get("datavenda"),
+                    "nsu":venda.get("nsu"),
+                    "valorbruto":venda.get("valorbruto"),
+                    
+                    # "horavenda":venda.get("horavenda")
+                }
+                dadosencontrados.append(info_simplificada)
+        
+        return dadosencontrados
 # query = Argoquery(24062026,200)
 
 # # print(query.query_nsu())

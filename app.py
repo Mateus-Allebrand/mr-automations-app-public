@@ -69,12 +69,15 @@ if check_password():
         st.session_state.resultados_teia = None
 
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         data_input = st.text_input("Digite a data (ddMMaaaa): ",key="data")
 
     with col2:
         nsu_input = st.text_input("Digite o número da NSU: ",key="nsu")
+
+    with col3:
+        valor_input = st.text_input("Digite o número o valor bruto: ",key="valor")
 
     btn_query_both_apis = st.button("CONSULTAR AMBAS API(s)")
 
@@ -86,7 +89,7 @@ if check_password():
                 if data_input and nsu_input:
                     try:
                         with st.spinner("Consultando API"):
-                            queryargo = Argoquery(data_input,nsu_input )
+                            queryargo = Argoquery(data_input,nsu_input, valor_input)
                             # lista_resultados_argo = queryargo.query_nsu()  
                             st.session_state.resultados_argo = queryargo.query_nsu()
                     
@@ -104,8 +107,31 @@ if check_password():
                     except Exception as e:
                         st.error(f"Erro inesperado: {e}")
 
+
+                elif data_input and valor_input:
+                    try:
+                        with st.spinner("Consultando API"):
+                            queryargo = Argoquery(data_input,nsu_input,valor_input)
+                            # lista_resultados_argo = queryargo.query_valor()  
+                            st.session_state.resultados_argo = queryargo.query_valor()
+                    
+                        if st.session_state.resultados_argo:
+                            st.success(f"Foi encontrado {len(st.session_state.resultados_argo)} registro (s) - API Argo")
+                            # for item in st.session_state.resultados_argo:
+                            #     st.json(item)
+                        else:
+                            st.error("VALOR não localizada! - API Argo")
+
+                    except requests.exceptions.HTTPError as errh:
+                        st.error(f"Erro de conexão com o servidor: {errh}")
+                    except ValueError:
+                        st.error("Erro ao processar dados: O servidor retornou uma resposta inválida. Tente novamente em instantes.")
+                    except Exception as e:
+                        st.error(f"Erro inesperado: {e}")
+
                 else:   
-                    st.warning(f"Por favor, preencha corretamente os campos de DATA e NSU!")
+                    st.warning(f"Por favor, Se possível Preencher o campo VALOR!")
+
 
         with coluna02:
             btn_consultar_teia = True
@@ -113,7 +139,7 @@ if check_password():
                 if data_input and nsu_input:
                     try:
                         with st.spinner("Consultando API"):
-                            queryteia = Teiaquery(data_input,nsu_input )
+                            queryteia = Teiaquery(data_input,nsu_input, valor_input)
                             # lista_resultados_teia = queryteia.query_nsu()  
                             st.session_state.resultados_teia = queryteia.query_nsu()
                     
@@ -131,8 +157,31 @@ if check_password():
                     except Exception as e:
                         st.error(f"Erro inesperado: {e}")
 
+                elif data_input and valor_input:
+                    try:
+                        with st.spinner("Consultando API"):
+                            queryteia = Teiaquery(data_input,nsu_input, valor_input)
+                            # lista_resultados_teia = queryteia.query_valor()  
+                            st.session_state.resultados_teia = queryteia.query_valor()
+                    
+                        if st.session_state.resultados_teia:
+                            st.success(f"Foi encontrado {len(st.session_state.resultados_teia)} registro (s) - API Argo")
+                            # for item in st.session_state.resultados_teia:
+                            #     st.json(item)
+                        else:
+                            st.error("VALOR não localizada! - API Teia")
+
+                    except requests.exceptions.HTTPError as errh:
+                        st.error(f"Erro de conexão com o servidor: {errh}")
+                    except ValueError:
+                        st.error("Erro ao processar dados: O servidor retornou uma resposta inválida. Tente novamente em instantes.")
+                    except Exception as e:
+                        st.error(f"Erro inesperado: {e}")
+
                 else:   
-                    st.warning(f"Por favor, preencha corretamente os campos de DATA e NSU!")
+                    st.warning(f"Por favor, preencher os campos NSU ou VALOR!")
+
+
 
 
             # coluna01, coluna02 = st.columns(2)
@@ -182,124 +231,3 @@ else:
 
 
 
-# # Função para verificar credenciais
-# def check_password():
-#     def password_entered():
-#         if st.session_state["username"] == st.secrets["APP_USER"] and \
-#            st.session_state["password"] == st.secrets["APP_PASSWORD"]:
-#             st.session_state["password_correct"] = True
-#         else:
-#             st.session_state["password_correct"] = False
-
-#     if "password_correct" not in st.session_state:
-#         # Primeira execução: mostrar formulário de login
-#         st.title("Login do sistema")
-#         st.text_input("Usuário", key="username")
-#         st.text_input("Senha", type="password", key="password")
-#         st.button("Entrar", on_click=password_entered)
-#         return False
-    
-#     elif not st.session_state["password_correct"]:
-#         # Senha incorreta: mostrar login novamente com aviso
-#         st.text_input("Usuário", key="username")
-#         st.text_input("Senha", type="password", key="password")
-#         st.button("Entrar", on_click=password_entered)
-#         st.error("Usuário ou senha incorretos")
-#         return False
-    
-#     else:
-#         # Login com sucesso
-#         return True
-
-# # --- FLUXO PRINCIPAL ---
-# if check_password():
-
-#     st.title("CONSULTAR APIS")
-
-#     # Inicializa o estado se não existir
-#     if 'resultados_argo' not in st.session_state:
-#         st.session_state.resultados_argo = None
-#     if 'resultados_teia' not in st.session_state:
-#         st.session_state.resultados_teia = None
-
-
-#     col1, col2 = st.columns(2)
-#     with col1:
-#         data_input = st.text_input("Digite a data (ddMMaaaa): ",key="data")
-
-#     with col2:
-#         nsu_input = st.text_input("Digite o número da NSU: ",key="nsu")
-
-#     coluna01, coluna02 = st.columns(2)
-#     with coluna01:
-#         btn_consultar_argo = st.button("CONSULTAR API ARGO")
-#         if  btn_consultar_argo:
-#             if data_input and nsu_input:
-#                 try:
-#                     with st.spinner("Consultando API"):
-#                         queryargo = Argoquery(data_input,nsu_input )
-#                         # lista_resultados_argo = queryargo.query_nsu()  
-#                         st.session_state.resultados_argo = queryargo.query_nsu()
-                
-#                     if st.session_state.resultados_argo:
-#                         st.success(f"Foi encontrado {len(st.session_state.resultados_argo)} registro (s) - API Argo")
-#                         # for item in st.session_state.resultados_argo:
-#                         #     st.json(item)
-#                     else:
-#                         st.error("NSU não localizada! - API Argo")
-
-#                 except requests.exceptions.HTTPError as errh:
-#                     st.error(f"Erro de conexão com o servidor: {errh}")
-#                 except ValueError:
-#                     st.error("Erro ao processar dados: O servidor retornou uma resposta inválida. Tente novamente em instantes.")
-#                 except Exception as e:
-#                     st.error(f"Erro inesperado: {e}")
-
-#             else:   
-#                 st.warning(f"Por favor, preencha corretamente os campos de DATA e NSU!")
-
-#     with coluna02:
-#         btn_consultar_teia = st.button("CONSULTAR API TEIA")
-#         if  btn_consultar_teia:
-#             if data_input and nsu_input:
-#                 try:
-#                     with st.spinner("Consultando API"):
-#                         queryteia = Teiaquery(data_input,nsu_input )
-#                         # lista_resultados_teia = queryteia.query_nsu()  
-#                         st.session_state.resultados_teia = queryteia.query_nsu()
-                
-#                     if st.session_state.resultados_teia:
-#                         st.success(f"Foi encontrado {len(st.session_state.resultados_teia)} registro (s) - API Argo")
-#                         # for item in st.session_state.resultados_teia:
-#                         #     st.json(item)
-#                     else:
-#                         st.error("NSU não localizada! - API Teia")
-
-#                 except requests.exceptions.HTTPError as errh:
-#                     st.error(f"Erro de conexão com o servidor: {errh}")
-#                 except ValueError:
-#                     st.error("Erro ao processar dados: O servidor retornou uma resposta inválida. Tente novamente em instantes.")
-#                 except Exception as e:
-#                     st.error(f"Erro inesperado: {e}")
-
-#             else:   
-#                 st.warning(f"Por favor, preencha corretamente os campos de DATA e NSU!")
-
-
-#         # coluna01, coluna02 = st.columns(2)
-
-
-#     # Exibição (Sempre exibe se houver dados no session_state)
-#     col_res_1, col_res_2 = st.columns(2)
-
-#     with col_res_1:
-#         if st.session_state.resultados_argo:
-#             st.subheader("Resultado Argo")
-#             for item in st.session_state.resultados_argo:
-#                 st.json(item)
-
-#     with col_res_2:
-#         if st.session_state.resultados_teia:
-#             st.subheader("Resultado Teia")
-#             for item in st.session_state.resultados_teia:
-#                 st.json(item)

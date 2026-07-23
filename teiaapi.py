@@ -12,7 +12,7 @@ from urllib3.util import Retry
 import streamlit as st
 
 class Teiaquery():
-    def __init__(self,str_data,nsu):
+    def __init__(self,str_data,nsu=None,valor_bruto=None):
         self.urlbase = st.secrets["api_teia"]["TEIA_URL_BASE"]
         self.client_id = st.secrets["api_teia"]["TEIA_CLIENTE_ID"]
         self.client_secret = st.secrets["api_teia"]["TEIA_CLIENTE_SECRET"]
@@ -20,7 +20,16 @@ class Teiaquery():
         self.username = st.secrets["api_teia"]["TEIA_USERNAME"]
         self.password = st.secrets["api_teia"]["TEIA_PASSWORD"]
         self.str_data = str_data.strip()
-        self.nsu = str(nsu).strip()
+        # Tratamento seguro para NSU (pode ser None ou vazio)
+        self.nsu = str(nsu).strip() if nsu is not None and str(nsu).strip() != "" else None
+
+        # Tratamento seguro para Valor (converte apenas se houver dado válido)
+        if valor_bruto is not None and str(valor_bruto).strip() != "":
+            # Substitui vírgula por ponto caso o usuário digite com formato brasileiro
+            valor_tratado = str(valor_bruto).strip().replace(",", ".")
+            self.valor = float(valor_tratado)
+        else:
+            self.valor = None
 
     def credential_connection(self):
         rPost = requests.post(self.urlbase,
@@ -63,6 +72,7 @@ class Teiaquery():
         for item in listavendas:
             info_vendas = item.get("venda",{})
             valor_nsu = info_vendas.get("nsu")
+            valor_bruto = info_vendas.get("valor_bruto")
 
             info_simplificada ={
                 "empresa":info_vendas.get("empresa_codigo"),
@@ -75,10 +85,36 @@ class Teiaquery():
             if valor_nsu is not None:
                 nsu_str = str(valor_nsu)
                 if nsu_str == nsualvo or nsu_str.endswith(nsualvo):
-                    registros_localizados.append(info_simplificada)     
+                    registros_localizados.append(info_simplificada)   
+            
 
         return registros_localizados
 
+    def query_valor(self):
+        valoralvo = self.valor
+        dadosvenda = self.api_connection()
+        registros_localizados = []
+
+        listavendas = dadosvenda.get("data",[])
+        for item in listavendas:
+            info_vendas = item.get("venda",{})
+            valor_nsu = info_vendas.get("nsu")
+            valor_bruto = item.get("valor_bruto")
+
+            info_simplificada ={
+                "empresa":info_vendas.get("empresa_codigo"),
+                "loja":info_vendas.get("loja_codigo"),
+                "datavenda":info_vendas.get("venda_data"),
+                "nsu":valor_nsu,
+                "valorbruto":item.get("valor_bruto")
+            }
+
+            # if valor_bruto is not None:
+            if valor_bruto == valoralvo:
+                registros_localizados.append(info_simplificada)   
+        
+
+        return registros_localizados
 
 # query = Teiaquery(28062026,544)
 # resultado = query.query_nsu()
